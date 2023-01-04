@@ -1,41 +1,50 @@
-import { useEffect, useState } from "react";
+// import { useEffect, useState } from "react";
 // import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Container, Row } from "react-bootstrap";
-import { NavigationBar } from "./content/navbar";
+import NavigationBar from "./content/navbar";
 import CardDat from "./content/card";
 import { homePage, pencarian } from "./content/getApi";
+import React from "react";
 
 // import { home } from "./content/api";
 
-let Content = () => {
-  let [datar, setDatar] = useState([]);
+class Content extends React.Component {
+  state = {
+    dataGetApi: [],
+  };
 
-  useEffect(() => {
-    homePage().then((articles) => {
-      setDatar(articles);
-    });
-  }, []);
-
-  let cari = async (q) => {
+  componentDidMount() {
+    homePage()
+      .then((d) =>
+        this.setState({
+          dataGetApi: d,
+        })
+      )
+      .catch((e) => console.log(e));
+  }
+  cari = async (q) => {
     if (q.length > 5) {
-      let searchData = await pencarian(q);
-      setDatar(searchData);
-      console.log(searchData);
+      let cariData = await pencarian(q);
+      this.setState({
+        dataGetApi: cariData,
+      });
     }
   };
-  return (
-    <div>
-      <NavigationBar dataSports={cari} />
-      <Container>
-        <Row xs={1} sm={1} md={3} xl={3} xxl={4} className="g-4">
-          {datar.map((datas, i) => (
-            <CardDat datas={datas} key={i} />
-          ))}
-        </Row>
-      </Container>
-    </div>
-  );
-};
+  render() {
+    return (
+      <div>
+        <NavigationBar newsArticles={this.cari} />
+        <Container>
+          <Row xs={1} sm={1} md={3} xl={3} xxl={4} className="g-4">
+            {this.state.dataGetApi.map((datas, i) => (
+              <CardDat datas={datas} key={i} />
+            ))}
+          </Row>
+        </Container>
+      </div>
+    );
+  }
+}
 
 export default Content;
